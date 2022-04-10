@@ -1,5 +1,5 @@
 # SJHack2022_Project2
-A methylation array analysis pipeline 
+A methylation array analysis pipeline with interactive data visualization.
 
 # Installation
 
