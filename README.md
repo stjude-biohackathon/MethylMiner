@@ -10,14 +10,20 @@ data folder, .idat files, csv (required areas of CSV)
 
 # Features
 -Quality Control and Normalization
+
+
 input:
 output:
 
 -Calling Rare Differentially Methylated Regions (DMR) 
+
+
 input:
 output:
 
 -Interactive Data Visualization
+
+
 input:
 output:
 
