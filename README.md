@@ -2,6 +2,9 @@
 A methylation array analysis pipeline with interactive data visualization.
 
 # Installation
+[insert installation info here]
+
+# Setup
 
 
 # Features
