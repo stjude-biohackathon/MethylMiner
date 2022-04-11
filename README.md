@@ -37,6 +37,14 @@ module load nextflow/21.04.1
 * **qCutMax**    - Maximum quantile cut-off for DMR analysis (default: 0.75)
 * **email**      - Email address for notification of the pipeline status
 
+### **.csv file datasheet REQUIRED columns**
+
+* **Sample_Name**       - Column containing the sample names
+* **Reported_Sex**      - Options: Male, Female, Unknown
+* **Sentrix_ID**        - Should be first portion of unique identifier consisting of 12 number (e.g. "204776850065")
+* **Sentrix_Position**  - Should be row column number (e.g. R01C01)
+* **Sample_ID**         - Should be the Sentrix_ID and the Sentrix Position corresponding to the full unique identifier (e.g. "204776850065_R01C01") 
+
 ### **Pipeline output**
 
 * **Directory-level output organization**
