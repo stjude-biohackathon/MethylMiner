@@ -129,7 +129,9 @@ Columns must be named exactly as indicated above. Also, .csv file must end on a 
 
 ### **How to run the pipeline?**
 
-Clone the repository on your cluster directory and navigate into pipeline directory
+Clone the repository on your cluster directory and navigate into pipeline directory.
+
+The default cluster parameters in the ```nextflow.config``` file can be modified suitably. Please refer to the configuration section of [NextFlow Documentation](https://www.nextflow.io/docs/latest/index.html) for the same.
 
 Pipeline consists of the following three workflows.
 
@@ -173,7 +175,7 @@ Pipeline consists of the following three workflows.
     
     
         ```
-        nextflow run map.nf -entry DMR_WF \
+        nextflow run map.nf -entry QUANTILE_WF \
             --workdir <Path/to/WorkDir> \
             --runName <RunName> \
             --outdir <Path/to/OutDir> \
