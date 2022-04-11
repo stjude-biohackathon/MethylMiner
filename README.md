@@ -44,8 +44,16 @@ module load nextflow/21.04.1
 * **Sentrix_Position**  - Should be row column number (e.g. R01C01)
 * **Sample_ID**         - Should be the Sentrix_ID and the Sentrix Position corresponding to the full unique identifier (e.g. "204776850065_R01C01") 
 * **Reported_Sex**      - Options: Male, Female, Unknown (required if sex check for QC is desired)
+* **Sample_Group**      - Option: Case, Control (required if post-analysis filtering is desired)
 
 Columns must be named exactly as indicated above. Also, .csv file must end on a new line (return character).
+
+### **.csv file datasheet RECOMMENDED columns**
+
+* **Sample_Type**       - Column containing the sample tissue source (e.g. Blood, Saliva, Fibroblast, etc.)
+* **Sentrix_Well**      - Well number corresponding to the sample plate submission
+* **Sample_Plate**      - Plate name that sample was run on (good annotation to check for batch effects between plates)
+* **Date**              - Date of sample run
 
 ### **Pipeline output**
 
