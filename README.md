@@ -178,6 +178,7 @@ Pipeline consists of the following three workflows.
     - Support for different methylation array platforms (450K etc)
     - Support for different normalization methods
     - Support for cell type composition QC analysis
+    - Support for CNV calling using "conumee"
     - Docker/Singularity containerization for cross-platform execution with required dependencies
 
 ## Jupyter Dash 
