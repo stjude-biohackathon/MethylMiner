@@ -37,7 +37,7 @@ module load nextflow/21.04.1
 * **qCutMax**    - Maximum quantile cut-off for DMR analysis (default: 0.75)
 * **email**      - Email address for notification of the pipeline status
 
-### **.csv file datasheet REQUIRED columns**
+### ** *.csv file datasheet REQUIRED columns**
 
 * **Sample_Name**       - Column containing the sample names
 * **Reported_Sex**      - Options: Male, Female, Unknown
