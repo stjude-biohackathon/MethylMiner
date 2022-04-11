@@ -72,11 +72,11 @@ dmrlist = lapply(1:length(start), function(i){
     o1 = c(); o2 = c()
     if(length(hyper) >=3){
       o1 = data.frame(Chr_DMR = unique(dmr[hyper,"CpG_chrm"]), Start_DMR = min(dmr[hyper,"CpG_beg"]), End_DMR = max(dmr[hyper,"CpG_end"]),
-                 Cohort=cohort,EpiInd = s, direction = "MAX")
+                 Cohort=cohort,EpiInd = s, direction = "HYPER")
     }
     if(length(hypo) >=3){
       o2 = data.frame(Chr_DMR = unique(dmr[hypo,"CpG_chrm"]), Start_DMR = min(dmr[hypo,"CpG_beg"]), End_DMR = max(dmr[hypo,"CpG_end"]),
-                Cohort=cohort,EpiInd = s, direction = "MIN")
+                Cohort=cohort,EpiInd = s, direction = "HYPO")
     }
     rbind(o1, o2)
   })
