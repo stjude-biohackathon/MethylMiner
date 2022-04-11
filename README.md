@@ -45,6 +45,8 @@ module load nextflow/21.04.1
 * **Sample_ID**         - Should be the Sentrix_ID and the Sentrix Position corresponding to the full unique identifier (e.g. "204776850065_R01C01") 
 * **Reported_Sex**      - Options: Male, Female, Unknown (required if sex check for QC is desired)
 
+Columns must be named exactly as indicated above. Also, .csv file must end on a new line (return character).
+
 ### **Pipeline output**
 
 * **Directory-level output organization**
