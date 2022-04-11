@@ -170,6 +170,10 @@ for subdir in next(os.walk('normalized_data'))[1]:
 
 DMPsSig_df = pd.read_csv(DMPsSig_USER, sep="\t")
 DMRsSig_df = pd.read_csv(DMRsSig_USER, sep="\t")
+DMRsSig_df["id"] = DMRsSig_df[['Chr_DMR','Start_DMR', 'End_DMR']].apply(lambda x: "{}:{}-{}".format(x[0], x[1], x[2]), axis=1)
+DMRsSig_df.drop(columns=["Cohort"], inplace=True)
+DMRsSig_df.set_index("id", inplace=True)
+DMRsSig_df["id"] = DMRsSig_df.index
 
 InputFilesDF = pd.DataFrame(
     {
@@ -342,31 +346,73 @@ PAGE_SIZE = 15
 tab_ev = dbc.Card(
     dbc.CardBody(
         [
-            dcc.Dropdown(
-                id='select_page_size',
-                options=[{'label': '5', 'value': 5}, {'label': '10', 'value': 10}, {'label': '15', 'value': 15}],
-                value=5
-            ),    
-            html.Div(dash_table.DataTable(
-                id='datatable-paging',
-                columns=[{"name": i, "id": i} for i in DMRsSig_df.columns],
-                data=DMRsSig_df.to_dict("rows"),
-                page_size=PAGE_SIZE,
+            dash_table.DataTable(
+                id='datatable-row-ids',
+                columns=[
+                    {'name': i, 'id': i, 'deletable': True} for i in DMRsSig_df.columns
+                    # omit the id column
+                    if i != 'id'
+                ],
+                data=DMRsSig_df.to_dict('records'),
+                editable=False,
+                filter_action="native",
+                sort_action="native",
+                sort_mode='multi',
+                row_selectable='multi',
+                row_deletable=False,
+                selected_rows=[],
+                page_action='native',
                 page_current=0,
-            ))
-            
+                page_size=10,
+            ),
+            html.Div(id='datatable-row-ids-container')
         ]
     ),
     className="mt-3",
 )
-@app.callback(    
-    Output('datatable-paging', 'page_size'),    
-    [Input('select_page_size', 'value')])    
-def update_table(page_size):    
-    return page_size
 
+@app.callback(
+    Output('datatable-row-ids-container', 'children'),
+    Input('datatable-row-ids', 'derived_virtual_row_ids'),
+    Input('datatable-row-ids', 'selected_row_ids'),
+    Input('datatable-row-ids', 'active_cell'))
+def update_graphs(row_ids, selected_row_ids, active_cell):
+    # https://dash.plotly.com/datatable/interactivity
+    # When the table is first rendered, `derived_virtual_data` and
+    # `derived_virtual_selected_rows` will be `None`. This is due to an
+    # idiosyncrasy in Dash (unsupplied properties are always None and Dash
+    # calls the dependent callbacks when the component is first rendered).
+    # So, if `rows` is `None`, then the component was just rendered
+    # and its value will be the same as the component's dataframe.
+    # Instead of setting `None` in here, you could also set
+    # `derived_virtual_data=df.to_rows('dict')` when you initialize
+    # the component.
+    selected_id_set = set(selected_row_ids or [])
+    
+    
+    if row_ids is None:
+        dff = DMRsSig_df
+        # pandas Series works enough like a list for this to be OK
+        row_ids = DMRsSig_df["id"]#df['id']
+    else:
+        dff = DMRsSig_df.loc[row_ids]
 
-
+    active_row_id = active_cell['row_id'] if active_cell else None
+    
+    series_DMRsNum = dff['EpiInd'].value_counts(ascending=True)
+    fig_DMRsNum = px.bar(x=series_DMRsNum,
+             y=series_DMRsNum.index,
+             template = "ggplot2",
+             title="Differentially methylated regions per sample",
+             labels={
+                     "x": "Number of DMRs",
+                     "y": "Sample",
+                 },
+             )
+    
+    return [dcc.Graph(
+                id='fig_DMRsNum',
+                figure=fig_DMRsNum,)]
 
 
 ############################################################################################
