@@ -8,7 +8,7 @@ A methylation array analysis pipeline tailored for discovering rare methylation 
     - Nadhir Djekidel
     - Wojciech Rosikiewicz
 
-Methylation array analysis pipeline consists of two major components
+Methylation array analysis pipeline consists of two major components:
 
 1. Processing of data using NextFlow pipeline
 2. Interactive exploration using Jupyter Dash server
