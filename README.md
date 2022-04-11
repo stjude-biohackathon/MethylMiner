@@ -193,8 +193,8 @@ Pipeline consists of the following three workflows.
     - Support for CNV calling using "conumee"
     - Docker/Singularity containerization for cross-platform execution with required dependencies
 
-### **Pipeline output**
-Test data: 6 .idat files are made available as test data for pipeline and DMR calling
+### **Test data**
+six (6) .idat files are made available as test data for pipeline and DMR calling
 
 
 
