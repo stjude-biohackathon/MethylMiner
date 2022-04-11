@@ -222,7 +222,7 @@ Six (6) .idat files are made available as test data for the pipeline, DMR callin
 1. [Fragile X NA09145](https://www.coriell.org/0/Sections/Search/Sample_Detail.aspx?Product=DNA&Ref=NA09145)
 2. [Fragile X NA09237](https://www.coriell.org/0/Sections/Search/Sample_Detail.aspx?Product=DNA&Ref=NA09237)
 3. [Fragile X NA07063](https://www.coriell.org/0/Sections/Search/Sample_Detail.aspx?Product=DNA&Ref=NA07063)
-4. 
+4. [Baratela-Scott syndrome](https://pubmed.ncbi.nlm.nih.gov/30554721/)
 
 
 
