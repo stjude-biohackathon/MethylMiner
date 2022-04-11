@@ -166,15 +166,6 @@ process FIND_DMRS {
 }
 
 
-workflow TEST_WF {
-    wch = Channel.of(params.workdir)
-    run = Channel.of(params.runName)
-    QC_NORMALIZATION(wch, run)
-    SORT_BETA(QC_NORMALIZATION.out.outpath)
-    //SORT_BETA.out.flatMap().view()
-    BED_BIGWIG(SORT_BETA.out.flatten())
-}
-
 workflow QC_WF {
     wch = Channel.of(params.workdir)
     run = Channel.of(params.runName)
