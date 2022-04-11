@@ -216,8 +216,8 @@ Place the `app.py` file from MethVis subfolder inside the `<runName>_preprocessI
     - Docker/Singularity containerization for cross-platform execution with required dependencies
     - Set up server for the Dash app
 
-### **Pipeline output**
-Test data: 6 .idat files are made available as test data for pipeline and DMR calling
+### **Test data**
+six (6) .idat files are made available as test data for pipeline and DMR calling
 
 
 
