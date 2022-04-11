@@ -1,5 +1,5 @@
 # **SJHack2022_Project2**
-A methylation array analysis pipeline tailored for rare methylation with interactive data visualization.
+A methylation array analysis pipeline tailored for discovering rare methylation events with interactive data visualization.
 
 # **Team Members**
 
