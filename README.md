@@ -40,7 +40,7 @@ module load nextflow/21.04.1
 ### **.csv file datasheet REQUIRED columns**
 
 * **Sample_Name**       - Column containing the sample names
-* **Reported_Sex**      - Options: Male, Female, Unknown
+* **Reported_Sex**      - Options: Male, Female, Unknown (required for sex check)
 * **Sentrix_ID**        - Should be first portion of unique identifier consisting of 12 number (e.g. "204776850065")
 * **Sentrix_Position**  - Should be row column number (e.g. R01C01)
 * **Sample_ID**         - Should be the Sentrix_ID and the Sentrix Position corresponding to the full unique identifier (e.g. "204776850065_R01C01") 
@@ -177,6 +177,7 @@ Pipeline consists of the following three workflows.
     - Support for different genomes (hg38, mm9, mm10)
     - Support for different methylation array platforms (450K etc)
     - Support for different normalization methods
+    - Support for cell type composition QC analysis
     - Docker/Singularity containerization for cross-platform execution with required dependencies
 
 ## Jupyter Dash 
