@@ -52,7 +52,9 @@ process QC_NORMALIZATION {
     cwd=\$(realpath ./)
     Rscript \${script} -w ${wdir} -n ${rName} -m \${manifest}
     mkdir "${rName}_preprocessIllumina/normalized_data/qcReports/"
+    csvFile=\$(realpath ${wdir}/*.csv)
     mv ${rName}_preprocessIllumina/normalized_data/*.pdf ${rName}_preprocessIllumina/normalized_data/qcReports/
+    mv \$csvFile ${rName}_preprocessIllumina/raw_data/
     rm ${rName}_preprocessIllumina/normalized_data/GSet.all.RDS
     """
 }
