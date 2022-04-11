@@ -41,13 +41,12 @@ module load nextflow/21.04.1
 
 * **Sample_Name**       - Column containing the sample names
 * **Sentrix_ID**        - Should be first portion of unique identifier consisting of 12 numbers (e.g. "204776850065")
-*                         Be careful! Microsoft Excel likes to convert these to scientific notation
 * **Sentrix_Position**  - Should be row column number (e.g. R01C01)
 * **Sample_ID**         - Should be the Sentrix_ID and the Sentrix Position corresponding to the full unique identifier (e.g. "204776850065_R01C01") 
 * **Reported_Sex**      - Options: Male, Female, Unknown (required if sex check for QC is desired)
 * **Sample_Group**      - Option: Case, Control (required if post-analysis filtering is desired)
 
-Columns must be named exactly as indicated above. Also, .csv file must end on a new line (return character).
+Columns must be named exactly as indicated above. Also, .csv file must end on a new line (return character). And be careful! Microsoft Excel likes to convert Sentrix IDs to scientific notation.
 
 ### **.csv file datasheet RECOMMENDED columns**
 
