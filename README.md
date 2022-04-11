@@ -15,14 +15,14 @@ Methylation array analysis pipeline consists of two major components:
 
 # **Installation**
  
-## **1. NextFlow Pipeline**
+## **1. methFlow - NextFlow Pipeline**
 
 Current implementation of the pipeline is designed to be executed on St. Jude HPC Research Cluster.
 
-After logging into interactive node, please load the following NextFlow module before running the pipeline
+After logging into interactive node, please load the following or latest available NextFlow module before running the pipeline
 
 ```
-module load nextflow/21.04.1
+module load nextflow/21.10.5
 ```
 
 ## **2. Jupyter Dash installation**
@@ -43,7 +43,7 @@ conda install jupyterLab numpy scipy matplotlib seaborn pandas matplotlib-venn i
 
 ### **Pipeline input parameters**
 
-* **workdir**    - Input directory with *.idat files and single *.csv file with description of the samples
+* **workdir**    - Input directory with *.idat files and single *.csv (description in below section) file with description of the samples
 * **runName**    - Name for the execution run of the pipeline
 * **outdir**     - Output directory for the pipeline to save the output files/folders
 * **genome**     - genome for QC/DMR analysis (currently only support hg19)
@@ -146,7 +146,7 @@ Columns must be named exactly as indicated above. Also, .csv file must end on a 
 
 ### **How to run the pipeline?**
 
-Clone the repository on your cluster directory and navigate into pipeline directory.
+Clone the repository on your cluster directory and navigate into a pipeline directory, methFlow.
 
 The default cluster parameters in the ```nextflow.config``` file can be modified suitably. Please refer to the configuration section of [NextFlow Documentation](https://www.nextflow.io/docs/latest/index.html) for the same.
 
@@ -184,6 +184,7 @@ Pipeline consists of the following three workflows.
     * **Note**
     
         - _DMR_WF_ workflow can be run multiple times on the same QC output with different window size and quantile cut-off parameters.
+        - Use the same runName and outdir parameters as for _QC_WF_
         - Pipeline will generate separate output directories prefixing the related parameters
     
 - **QUANTILE_WF**
