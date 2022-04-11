@@ -222,9 +222,9 @@ Place the `app.py` file from MethVis subfolder inside the `<runName>_preprocessI
     - 3 samples (2 male Fragile X patients, 1 female Fragile X patient) are positive controls for a hypermethylated DMR on ChrX
     - The metadata for these samples can be found in the same folder as the data.
 
-[Fragile X NA09145](https://www.coriell.org/0/Sections/Search/Sample_Detail.aspx?Product=DNA&Ref=NA09145)
-[Fragile X NA09237](https://www.coriell.org/0/Sections/Search/Sample_Detail.aspx?Product=DNA&Ref=NA09237)
-[Fragile X NA07063](https://www.coriell.org/0/Sections/Search/Sample_Detail.aspx?Product=DNA&Ref=NA07063)
+1. [Fragile X NA09145](https://www.coriell.org/0/Sections/Search/Sample_Detail.aspx?Product=DNA&Ref=NA09145)
+2. [Fragile X NA09237](https://www.coriell.org/0/Sections/Search/Sample_Detail.aspx?Product=DNA&Ref=NA09237)
+3. [Fragile X NA07063](https://www.coriell.org/0/Sections/Search/Sample_Detail.aspx?Product=DNA&Ref=NA07063)
 
 
 
