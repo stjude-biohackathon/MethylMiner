@@ -211,11 +211,10 @@ Place the `app.py` file from MethVis subfolder inside the `<runName>_preprocessI
 ### **Future updates to the pipeline**
     - Support for different genomes (hg38, mm9, mm10)
     - Support for different methylation array platforms (450K etc)
-    - Support for different normalization methods
-    - Support for cell type composition QC analysis
-    - Support for CNV calling using "conumee"
+    - Support for different normalization methods (processnoob etc)
+    - Support for cell type composition QC analysis (estimateCellCounts)
+    - Support for CNV calling using (conumee)
     - Docker/Singularity containerization for cross-platform execution with required dependencies
-    - Set up server for the Dash app
 
 ### **Test data**
 Six (6) .idat files are made available as test data for the pipeline, DMR calling, and sample data visualization. Three (3) samples (2 male Fragile X patients, 1 female Fragile X patient) are positive controls for a hypermethylated DMR upstream *FMR1* gene on ChrX. Three (3) samples (two affected Baratela-Scott syndrome probands, one unaffectd mother) are positive controls for a hypermethylated DMR on Chr16. The metadata for these samples can be found in the same folder as the data.
