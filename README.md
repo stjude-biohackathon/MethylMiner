@@ -1,6 +1,9 @@
 # **MethMiner**
 A methylation array analysis pipeline tailored for discovering rare methylation events with interactive data visualization.
 
+Differentially methylated region (DMR): a genomic region that has different DNA methylation status across samples.
+Rare DMRs have been shown to cause multiple diseases, such as Fragile X sydrome.
+
 # **Team Members**
 
     - Christy LaFlamme
