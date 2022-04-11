@@ -25,6 +25,22 @@ After logging into interactive node, please load the following NextFlow module b
 module load nextflow/21.04.1
 ```
 
+## **2. Jupyter Dash installation**
+
+We recommend generating the [Anaconda](https://www.anaconda.com/products/distribution) virtual environment, to install the required packages. Assuming this is the approach taken, first create and activate the enviroment:
+
+```
+conda create -n dash
+source activate dash
+```
+
+then install all dependencies inside:
+
+```
+conda install jupyterLab numpy scipy matplotlib seaborn pandas matplotlib-venn ipykernel plotly dash dash-bio dash-core-components dash-bootstrap-components notebook jupyter-dash -c conda-forge -c anaconda -c plotly
+```
+
+
 ### **Pipeline input parameters**
 
 * **workdir**    - Input directory with *.idat files and single *.csv file with description of the samples
@@ -127,6 +143,7 @@ Columns must be named exactly as indicated above. Also, .csv file must end on a 
             └── sexPredictionsComparison.txt
 ```
 
+
 ### **How to run the pipeline?**
 
 Clone the repository on your cluster directory and navigate into pipeline directory.
@@ -185,6 +202,11 @@ Pipeline consists of the following three workflows.
             --email <email address>
         ```
 
+### **How to visualize and explore the results of the pipeline?**
+
+Place the `app.py` file from MethVis subfolder inside the `<runName>_preprocessIllumina` directory, activate the environment with all dash-related packages (see installation instructions above), and run command `python app.py`.
+
+
 ### **Future updates to the pipeline**
     - Support for different genomes (hg38, mm9, mm10)
     - Support for different methylation array platforms (450K etc)
@@ -192,6 +214,7 @@ Pipeline consists of the following three workflows.
     - Support for cell type composition QC analysis
     - Support for CNV calling using "conumee"
     - Docker/Singularity containerization for cross-platform execution with required dependencies
+    - Set up server for the Dash app
 
 ## Jupyter Dash 
 
