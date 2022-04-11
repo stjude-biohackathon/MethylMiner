@@ -216,7 +216,7 @@ BHLogo_content = dbc.CardImg(src="data:image/png;base64, iVBORw0KGgoAAAANSUhEUgA
 loremIpsum = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
 
 ## Set up server to bootstrap template:
-app = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
+app = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.FONT_AWESOME])
 
 ## Read in the params from pipeline run
 outfilePrefix = "test" # i.e. there will be some analysis prefix imported later, now i dont have this config file yet so i just hard code the "test" here for now
@@ -346,10 +346,16 @@ PAGE_SIZE = 15
 tab_ev = dbc.Card(
     dbc.CardBody(
         [
+            dcc.Markdown('''
+
+Here you may explore the contents of the `{}` file.
+
+            '''.format(DMRsSig_USER)),
+            
             dash_table.DataTable(
                 id='datatable-row-ids',
                 columns=[
-                    {'name': i, 'id': i, 'deletable': True} for i in DMRsSig_df.columns
+                    {'name': i, 'id': i, 'deletable': False} for i in DMRsSig_df.columns
                     # omit the id column
                     if i != 'id'
                 ],
@@ -365,12 +371,30 @@ tab_ev = dbc.Card(
                 page_current=0,
                 page_size=10,
             ),
+            
+            dcc.Markdown('''
+
+The above data table may be filtered using expressions like `="chr1"` or `>1000000`. More about filtering syntax may be found [here](https://dash.plotly.com/datatable/filtering). Note, that filtering of the above table will result in updating the plots below.
+
+            '''),
+            
+            # dbc.Alert(
+#                 [
+#                     html.I(className="bi bi-info-circle-fill me-2"),
+#                     """The above data table may be filtered using expressions like ="chr1" or >1000000. More about filtering syntax may be found """,
+#                     html.A("here", href="https://dash.plotly.com/datatable/filtering", className="alert-link"), 
+#                     """. Filtering of the above table will result in updating the plots below.""",
+#                 ],
+#                 color="info",
+#                 className="d-flex align-items-center",
+#             ),
+            
+#             dbc.Toast([html.P('Note, that the above data table may be filtered using expressions like ="chr1" or >1000000. More about filtering syntax may be found <a href=https://dash.plotly.com/datatable/filtering>here</a>. Filtering of the above table will result in updating the plots below.', className="mb-0")], header="Data table filtering",),
             html.Div(id='datatable-row-ids-container')
         ]
     ),
     className="mt-3",
 )
-
 @app.callback(
     Output('datatable-row-ids-container', 'children'),
     Input('datatable-row-ids', 'derived_virtual_row_ids'),
@@ -389,7 +413,6 @@ def update_graphs(row_ids, selected_row_ids, active_cell):
     # the component.
     selected_id_set = set(selected_row_ids or [])
     
-    
     if row_ids is None:
         dff = DMRsSig_df
         # pandas Series works enough like a list for this to be OK
@@ -398,6 +421,7 @@ def update_graphs(row_ids, selected_row_ids, active_cell):
         dff = DMRsSig_df.loc[row_ids]
 
     active_row_id = active_cell['row_id'] if active_cell else None
+    
     
     series_DMRsNum = dff['EpiInd'].value_counts(ascending=True)
     fig_DMRsNum = px.bar(x=series_DMRsNum,
@@ -410,9 +434,45 @@ def update_graphs(row_ids, selected_row_ids, active_cell):
                  },
              )
     
-    return [dcc.Graph(
-                id='fig_DMRsNum',
-                figure=fig_DMRsNum,)]
+    
+    series_hyperHypoPie = dff['direction'].value_counts(ascending=True)
+    fig_hyperHypoPie = go.Figure(data=[go.Pie(labels=series_hyperHypoPie.index,
+                             values=series_hyperHypoPie,
+                             textinfo='label+percent',
+                             insidetextorientation='radial',
+                             hole=.7,
+                             title="Number of Hyper/Hypo<br>methylated DMRs"
+                            )])
+    
+    series_perChrm = dff['Chr_DMR'].value_counts(ascending=True)
+    fig_perChrm = go.Figure(data=[go.Pie(labels=series_perChrm.index,
+                             values=series_perChrm,
+                             hole=.7,
+                             title="Number of DMRs<br>per chromosome"
+                            )])
+    
+    
+    
+    
+    return [dbc.Row([
+                dcc.Graph(
+                    id='fig_DMRsNum',
+                    figure=fig_DMRsNum,),
+                ]),
+            dbc.Row([
+                dbc.Col([
+                    dcc.Graph(
+                        id='fig_hyperHypoPie',
+                        figure=fig_hyperHypoPie,)
+                    ], md=6),
+                dbc.Col([
+                    dcc.Graph(
+                        id='fig_perChrm',
+                        figure=fig_perChrm,)
+                    ], md=6),
+                ]
+                
+            )]
 
 
 ############################################################################################
