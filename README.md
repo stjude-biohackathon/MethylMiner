@@ -216,31 +216,14 @@ Place the `app.py` file from MethVis subfolder inside the `<runName>_preprocessI
     - Docker/Singularity containerization for cross-platform execution with required dependencies
     - Set up server for the Dash app
 
-## Jupyter Dash 
-
-# Setup
-Directory setup (workDir)
-data folder, .idat files, csv (required areas of CSV)
-
-# Features
--Quality Control and Normalization
+### **Pipeline output**
+Test data: 6 .idat files are made available as test data for pipeline and DMR calling
 
 
-input:
-output:
-
--Calling Rare Differentially Methylated Regions (DMR) 
 
 
-input:
-output:
-
--Interactive Data Visualization
 
 
-input:
-output:
 
-# Usage/Tutorial
-Download sample/trial data
+
 
