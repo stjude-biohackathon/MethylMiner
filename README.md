@@ -218,8 +218,8 @@ Place the `app.py` file from MethVis subfolder inside the `<runName>_preprocessI
 
 ### **Test data**
     - six (6) .idat files are made available as test data for the pipeline, DMR calling, and sample data visualization
+    - 3 samples (2 male Fragile X patients, 1 female Fragile X patient) are positive controls for a hypermethylated DMR upstream *FMR1 gene on ChrX
     - 3 samples (two affected Baratela-Scott syndrome probands, one unaffectd mother) are positive controls for a hypermethylated DMR on chr16 [autosomes]
-    - 3 samples (2 male Fragile X patients, 1 female Fragile X patient) are positive controls for a hypermethylated DMR on ChrX
     - The metadata for these samples can be found in the same folder as the data.
 
 1. [Fragile X NA09145](https://www.coriell.org/0/Sections/Search/Sample_Detail.aspx?Product=DNA&Ref=NA09145)
