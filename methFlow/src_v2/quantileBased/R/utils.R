@@ -30,7 +30,7 @@ using<-function(..., character.only = FALSE) {
     req<-unlist( lapply(libs,function(p) suppressPackageStartupMessages(require(p,character.only=TRUE)) ) )
     need<-libs[req==FALSE]
     if(length(need)>0){ 
-        installMissingPkg(need)
+        ls (need)
         lapply(need,require,character.only=TRUE)
     }
 }
@@ -95,6 +95,13 @@ parseParameters <- function(){
   );
 
   parser$add_argument(
+    "-m","--manifest",
+    dest='manifest',
+    help = "Path to the manifest file",
+    type = "character"
+  );
+
+  parser$add_argument(
     "-p","--platform",
     dest='platform',
     help = "Methylation array platform. Default: EPIC",
@@ -120,6 +127,7 @@ parseParameters <- function(){
   config[['runName']] = opt$runName
   config[['genome']] = opt$genome
   config[['platform']] = opt$platform
+  config[['manifest']] = opt$manifest
  
   return(config)
   
@@ -129,13 +137,13 @@ parseParameters <- function(){
 
 loadSourceFiles <- function(config){    
 
-    sourceFilesDir = normalizePath(glue::glue("{config$scriptsDir}/../../"))
+    #sourceFilesDir = normalizePath(glue::glue("{config$scriptsDir}/../../"))
 
-    platform = config$platform
-    genome = config$genome
+    #platform = config$platform
+    #genome = config$genome
         
-    manifestFile = glue::glue("{sourceFilesDir}/data/{platform}.{genome}.manifest.tsv")
-
+    #manifestFile = glue::glue("{sourceFilesDir}/data/{platform}.{genome}.manifest.tsv")
+    manifestFile = config$manifest
     logger::log_info("Trying to load {manifestFile}")  
 
     if(!file.exists(manifestFile)){
@@ -499,12 +507,12 @@ parseAnnoParameters <- function(){
     type = "character"
   );
 
-  parser$add_argument(
-    "-n", "--runName",
-    dest='runName',
-    help = "Output folder name",
-    type = "character"
-  );
+  #parser$add_argument(
+  #  "-n", "--runName",
+  #  dest='runName',
+  #  help = "Output folder name",
+  #  type = "character"
+  #);
 
   parser$add_argument(
     "-p","--platform",
@@ -547,7 +555,7 @@ parseAnnoParameters <- function(){
 
   config = list()
   config[['outputDir']] = opt$outputDir
-  config[['runName']] = opt$runName
+  #config[['runName']] = opt$runName
   config[['platform']] = opt$platform
   config[['genome']] = opt$genome
   config[['DMR']] = opt$dmr
@@ -617,10 +625,14 @@ runHomerAnnotation <- function(config){
     pos_sr = grep("Simple_repeat",homer_res[['Detailed Annotation']])
     pos_sat = grep("Satellite",homer_res[['Detailed Annotation']])
 
+
     pos = c(pos_SINE,pos_LINE, pos_RC,pos_LTR,pos_LC,pos_sr, pos_sat) %>% unique()
     homer_res$RepeatRegion = "."
-    homer_res$RepeatRegion[pos] = homer_res[['Detailed Annotation']][pos]
+    homer_res$Detailed_RepeatRegion = "."
 
+    Repeat_info = stringr::str_match(homer_res[['Detailed Annotation']][pos],pattern = "(.+)\\|(.+)\\|(.+)")
+    homer_res$Detailed_RepeatRegion[pos] = homer_res[['Detailed Annotation']][pos]
+    homer_res$RepeatRegion[pos] = Repeat_info[,4]
 
 
     homer_res = cbind(sig.df,homer_res[,-c(1:7)])
@@ -740,12 +752,6 @@ runImprintingAnnotation <- function(config){
 }
 
 
-
-runTFBSAnnotation <- function(config){
-
-}
-
-
 GRangesToString <- function (grange, sep = c(":", "-")) 
 {
     regions <- paste0(as.character(x = seqnames(x = grange)), 
@@ -825,7 +831,7 @@ run450KAnno <- function(cofig){
       DMR_id = sig.dmr.gr_lst[[direction]]$rowID[unique_ovp$queryHits ]
 
       sig.dmr.df[["Frequency of DMR per 10,000 (95% CI)"]][DMR_id] = mcols(population_anno.gr_lst[[direction]])[["Frequency of DMR per 10,000 (95% CI)"]][unique_ovp$subjectHits]      
-      sig.dmr.df[["Corresponding 450k population DMR"]] = GRangesToString(population_anno.gr_lst[[direction]][unique_ovp$subjectHits])
+      sig.dmr.df[["Corresponding 450k population DMR"]][DMR_id] = GRangesToString(population_anno.gr_lst[[direction]][unique_ovp$subjectHits])
 
       # fix multi-hits DMR if any 
       if(length(multi_hit_dmr)>0){
@@ -842,7 +848,7 @@ run450KAnno <- function(cofig){
 
           overlapping_dmrs = GRangesToString(gr) 
           overlapping_dmrs = paste(overlapping_dmrs, collapse = ",")
-          sig.dmr.df[["Corresponding 450k population DMR"]] = overlapping_dmrs
+          sig.dmr.df[["Corresponding 450k population DMR"]][DMR_ID] = overlapping_dmrs
         }
       }      
     }    
@@ -867,6 +873,7 @@ saveAnnoAsXlsx <- function(config){
   
   sig.dmr.df = readr::read_tsv(config$anno_tmp, show_col_types = FALSE)
 
+  fout = gsub(".tsv",".xlsx",config$anno_tmp)
   logger::log_info(glue("Saving results to {fout} ..."))
   wb <- createWorkbook()
   addWorksheet(wb = wb,sheetName = "Marker genes")
@@ -879,7 +886,7 @@ saveAnnoAsXlsx <- function(config){
 
 
   hs1 <- createStyle(fgFill = "#F2F2F2",fontColour = "black",textRotation = 60,textDecoration = "Bold")
-  addStyle(wb, 1, style = hs1, rows = 1, cols=1:ncol(mrks2))
+  addStyle(wb, 1, style = hs1, rows = 1, cols=1:ncol(sig.dmr.df))
 
   fout = gsub(".tsv",".xlsx",config$anno_tmp)
   saveWorkbook(wb,file = fout, overwrite = TRUE)

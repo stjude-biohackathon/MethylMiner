@@ -7,7 +7,14 @@
 ###############################################################################
 # Load dependencies and helper scripts
 
+
 ## Check if funr is installed (it is essential to get the source file path).
+if(!'optparse' %in% .packages(all.available = TRUE)){
+  message("The essential package 'optparse' is missing, installing it ...")
+  install.packages('optparse')
+}
+
+
 if(!'funr' %in% .packages(all.available = TRUE)){
   message("The essential package 'funr' is missing, installing it ...")
   install.packages('funr')

@@ -48,6 +48,7 @@ config = runImprintingAnnotation(config)
 cli::cli_alert_info("Population Frequency annotation ...")
 config = run450KAnno(config)
 
+readr::write_rds(config, file="config.rds")
 
 cli::cli_alert_info("Exporting annotation to xlsx format ...")
 saveAnnoAsXlsx(config)
