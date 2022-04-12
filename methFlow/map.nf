@@ -54,7 +54,7 @@ process QC_NORMALIZATION {
     mkdir "${rName}_preprocessIllumina/normalized_data/qcReports/"
     csvFile=\$(realpath ${wdir}/*.csv)
     mv ${rName}_preprocessIllumina/normalized_data/*.pdf ${rName}_preprocessIllumina/normalized_data/qcReports/
-    mv \$csvFile ${rName}_preprocessIllumina/raw_data/
+    cp \$csvFile ${rName}_preprocessIllumina/raw_data/
     rm ${rName}_preprocessIllumina/normalized_data/GSet.all.RDS
     """
 }
@@ -88,6 +88,7 @@ process SORT_BETA {
 
 process BED_BIGWIG {
     publishDir "${params.outdir}/${params.runName}/${params.runName}_preprocessIllumina/normalized_data/bigWig", mode: 'copy'
+    publishDir "${params.outdir}/${params.runName}/${params.runName}_preprocessIllumina/assets/", mode: 'copy'
     echo true
     cache 'lenient'
     //executor 'lsf'
