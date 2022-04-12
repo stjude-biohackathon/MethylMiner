@@ -17,7 +17,7 @@ Methylation array analysis pipeline consists of two major components:
 1. Processing of data using NextFlow pipeline
 2. Interactive exploration using Jupyter Dash server
 
-# **Installation**
+# **Installation and usage**
  
 ## **1. methFlow - NextFlow Pipeline**
 
@@ -28,22 +28,6 @@ After logging into interactive node, please load the following or latest availab
 ```
 module load nextflow/21.10.5
 ```
-
-## **2. Jupyter Dash installation**
-
-We recommend generating the [Anaconda](https://www.anaconda.com/products/distribution) virtual environment, to install the required packages. Assuming this is the approach taken, first create and activate the enviroment:
-
-```
-conda create -n dash
-source activate dash
-```
-
-then install all dependencies inside:
-
-```
-conda install jupyterLab numpy scipy matplotlib seaborn pandas matplotlib-venn ipykernel plotly dash dash-bio dash-core-components dash-bootstrap-components notebook jupyter-dash -c conda-forge -c anaconda -c plotly
-```
-
 
 ### **Pipeline input parameters**
 
@@ -219,6 +203,36 @@ Place the `app.py` file from MethVis subfolder inside the `<runName>_preprocessI
     - Support for cell type composition QC analysis (estimateCellCounts)
     - Support for CNV calling using (conumee)
     - Docker/Singularity containerization for cross-platform execution with required dependencies
+
+## **2. MethVis - Jupyter Dash server installation**
+
+We recommend generating the [Anaconda](https://www.anaconda.com/products/distribution) virtual environment, to install the required packages. Assuming this is the approach taken, first create and activate the enviroment:
+
+```
+conda create -n dash
+conda activate dash
+```
+
+then install all dependencies inside:
+
+```
+conda install jupyterLab numpy scipy matplotlib seaborn pandas matplotlib-venn ipykernel plotly dash dash-bio dash-core-components dash-bootstrap-components notebook jupyter-dash -c conda-forge -c anaconda -c plotly
+```
+
+### How to run the MethVis server?
+
+```
+$ cp ./MethVis/app.py /path/to/<runName>_preprocessIllumina/
+$ cd /path/to/<runName>_preprocessIllumina/ 
+$ conda activate dash
+$ python app.py
+``` 
+
+The script will process the output files and output URL for the hosting Jupyter Dash server.
+
+### **Future updates to the Jupyter Dash server**
+    - Option to automatically run the server at the end of pipeline execution
+    - More annotation tracks and interactive visualization plots
 
 ### **Test data**
 Six (6) .idat files are made available as test data for the MethMiner pipeline. These samples serve as positive controls for DMR calling and sample data visualization. Three (3) samples (2 male Fragile X patients, 1 female Fragile X patient) are positive controls for a hypermethylated DMR upstream *FMR1* gene on ChrX. Three (3) samples (two affected Baratela-Scott syndrome probands, one unaffected parent) are positive controls for a hypermethylated DMR on Chr16. The metadata for these samples can be found in the same folder as the data.
