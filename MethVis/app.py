@@ -1,5 +1,5 @@
 from os import path
-import os
+import os, glob
 import time
 import base64
 
@@ -144,6 +144,9 @@ else:
     raise Exception("maleProbes_df ({}) file not found. Program execution was aborted.".format(maleProbes_df))
 
 dmrParamSets = OrderedDict()
+bigWigFiles_A = [] # Autosomes data; Structure of this list will be [(Sample 1 label, sample 1 relative path to BW), ..., (Sample N label, sample N relative path to BW)]
+bigWigFiles_F = [] # Female data; 
+bigWigFiles_M = [] # MAle data; 
 for subdir in next(os.walk('normalized_data'))[1]:
     if subdir.startswith("dmr_"):
         tmp = subdir.split("_")
@@ -171,7 +174,20 @@ for subdir in next(os.walk('normalized_data'))[1]:
         
         dmrParamSets[(int(tmp[1]), float(tmp[2]), float(tmp[3]), DMPsSig_USER, DMRsSig_USER)] = 1
         print("Detected dmr_{}_{}_{} results collection".format(int(tmp[1]), float(tmp[3]), float(tmp[2])))
+#     if subdir == "bigWig":
+#         for bw in glob.glob(path.join('normalized_data', "bigWig", "autosomes", "*.bw")):
+#             bigWigFiles_A.append(("{} Autosome M-value".format(os.path.splitext(path.basename(bw))[0]), path.join("/",bw)))
+#         for bw in glob.glob(path.join('normalized_data', "bigWig", "female", "*.bw")):
+#             bigWigFiles_F.append(("{} Female M-value".format(os.path.splitext(path.basename(bw))[0]), path.join("/",bw)))
+#         for bw in glob.glob(path.join('normalized_data', "bigWig", "Male", "*.bw")):
+#             bigWigFiles_M.append(("{} Male M-value".format(os.path.splitext(path.basename(bw))[0]), path.join("/",bw)))
 
+for bw in glob.glob(path.join("assets", "autosomes", "*.bw")):
+    bigWigFiles_A.append(("{} Autosome M-value".format(os.path.splitext(path.basename(bw))[0]), path.join("/",bw)))
+for bw in glob.glob(path.join("assets", "female", "*.bw")):
+    bigWigFiles_F.append(("{} Female M-value".format(os.path.splitext(path.basename(bw))[0]), path.join("/",bw)))
+for bw in glob.glob(path.join("assets", "male", "*.bw")):
+    bigWigFiles_M.append(("{} Male M-value".format(os.path.splitext(path.basename(bw))[0]), path.join("/",bw)))
 
 # for now, for testing purposes i am setting the analysis to include only one "set" of results (anyhow we do not have more at the time), i.e. i am using the very last one loaded in.
 
@@ -276,6 +292,9 @@ click `submit` button and enjoy the exploration of their results.
     className="mt-3",
 )
 
+#############
+### Pipeline run info tab
+#############
 
 tab_data = dbc.Card(
     dbc.CardBody(
@@ -308,6 +327,10 @@ tab_data = dbc.Card(
     className="mt-3",
 )
 
+#############
+### Methods tab
+#############
+
 tab_methods = dbc.Card(
     dbc.CardBody(
         [
@@ -322,6 +345,10 @@ Here we provide methods description, add any neccesary details and schematics et
     ),
     className="mt-3",
 )
+
+#############
+### QC tab
+#############
 
 tab_qc = dbc.Card(
     dbc.CardBody(
@@ -358,8 +385,10 @@ Here we provide the overview of the quality controls regarding your samples.
     className="mt-3",
 )
 
+#############
+### Results Exploration / visualization tab
+#############
 
-PAGE_SIZE = 15
 tab_ev = dbc.Card(
     dbc.CardBody(
         [
@@ -549,6 +578,109 @@ def update_graphs(row_ids, selected_row_ids, active_cell):
                 ])
             ]
 
+#############
+### IGV Tab
+#############
+
+YOUR_DATA_DIR="/Users/wrosikie/Library/CloudStorage/OneDrive-Personal/STJ_Projects/CAB_Dash/tutorial_forBH/08_igv"
+YOUR_DATA_DIR="/Users/wrosikie/Library/CloudStorage/OneDrive-Personal/STJ_Projects/CAB_Dash/BioHackathon_dash/Monday_2PM.nextFlow_pipeline_output/biohackathon_test_preprocessIllumina"
+YOUR_DATA_DIR=os.path.dirname(os.path.abspath(__file__))
+
+server=app.server
+
+@server.route('/<path:path>')
+def send_bw(path):
+    response = send_from_directory(YOUR_DATA_DIR,path)
+    return response
+
+trk = []
+for bw in bigWigFiles_A:
+    # properties for wig: https://github.com/igvteam/igv.js/wiki/Wig-Track
+    trk.append({
+                  "name": bw[0],
+                  "type": "wig",
+                  "sourceType": "file",
+                  "color": "rgb(0, 0, 0)",
+                  "url": bw[1]
+                 })
+trkF = []
+for bw in bigWigFiles_F:
+    trkF.append({
+                  "name": bw[0],
+                  "type": "wig",
+                  "sourceType": "file",
+                  "color": "rgb(255,116,140)",
+                  "url": bw[1]
+                 })
+trkM = []
+for bw in bigWigFiles_M:
+    trkM.append({
+                  "name": bw[0],
+                  "type": "wig",
+                  "sourceType": "file",
+                  "color": "rgb(116,140,255)",
+                  "url": bw[1]
+                 })
+
+tab_igv = dbc.Card(
+    dbc.CardBody(
+        [
+            dcc.Markdown('''
+#### Explore the results in the Genome Browser
+
+Note, We are aware of a known IGV error, which we are trying to fix. You may recognize it by seeing empty IGV window(s) and coordinates set to e.g.: `chr8:128,746,680-NaN`. As a work-around this, you can do one of at least these two things:
+
+1. Simply type in the coordinates of your interest into IGV search box, e.g. `MYC` for Myc gene coordinates, which will refresh the IGV window and set the coordinates back to intended `chr8:128,746,680-128,756,197`.
+2. Reload the entire web page, and immediately go to `Genome Browser` tab. This will result in proper rendering of all IGV windows.
+
+### IGV Genome browser window that includes Autosome data:
+
+'''),
+            dcc.Loading(id='default-igv-container'),
+            dashbio.Igv(
+                id='default-igv',
+                genome='hg19',
+                minimumBases=100,
+                locus='MYC',
+                tracks = trk
+            ),
+            
+            html.Hr(),
+            dcc.Markdown('''
+
+
+
+### IGV Genome browser window that includes female data:
+
+'''),
+            dashbio.Igv(
+                id='default-igv-f',
+                genome='hg19',
+                minimumBases=100,
+                locus='chrX',
+                tracks = trkF
+            ),
+            
+            html.Hr(),
+            dcc.Markdown('''
+
+
+
+### IGV Genome browser window that includes male data:
+
+'''),
+            dashbio.Igv(
+                id='default-igv-m',
+                genome='hg19',
+                minimumBases=100,
+                locus='chrY:1-28,221,720',
+                tracks = trkM
+            ),
+        ]
+    ),
+    className="mt-3",
+)
+
 
 ############################################################################################
 ### App Layout:
@@ -560,7 +692,8 @@ tabs = dbc.Tabs(
         dbc.Tab(tab_methods, label="Methods"),
         dbc.Tab(tab_data, label="Input data and parameters"),
         dbc.Tab(tab_qc, label="Quality controls"),
-        dbc.Tab(tab_ev, label="Data exploration and visualization")
+        dbc.Tab(tab_ev, label="Data exploration and visualization"),
+        dbc.Tab(tab_igv, label="Genome Browser"),
     ]
 )
 
@@ -569,7 +702,6 @@ app.layout = dbc.Container(
         html.Br(),
         dbc.Row(
             [
-#                 dbc.Col("", md=1),
                 dbc.Col(BHLogo_content, md=3),
                 dbc.Col([
                     html.H4("St. Jude Biohackathon 2022, Project 2: Methylation array analysis pipeline"),
