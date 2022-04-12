@@ -3,7 +3,7 @@
 # **MethMiner**
 A methylation array analysis pipeline tailored for discovering rare methylation events with interactive data visualization.
 
-A differentially methylated region (DMR) is a genomic region that has different DNA methylation status across samples. Rare DMRs have been shown to cause multiple diseases. A famous example is Fragile X sydrome where the majority of patients display hypermethylation in the 5'UTR of *FMR1* leading to reduced gene expression. This methylation is driven by an underying GC-rich expansion repeat that is impossible to detect by short-read sequencing approaches. Therefore, it is very useful to "mine" these rare methylation events in order to discover novel causes of disease and disease variation.
+A differentially methylated region (DMR) is a genomic region that has different DNA methylation status across samples. Rare DMRs have been shown to cause multiple diseases. A famous example is Fragile X sydrome where the majority of patients display a hypermethylated DMR in the 5'UTR of *FMR1* leading to reduced gene expression. The hypermethylation is driven by an underying GC-rich expansion repeat that is impossible to detect by short-read sequencing approaches. Therefore, it is very useful to "mine" these rare methylation events in order to discover novel causes of disease. 
 
 # **Team Members**
 
