@@ -199,7 +199,7 @@ Place the `app.py` file from MethVis subfolder inside the `<runName>_preprocessI
 ### **Future updates to the pipeline**
     - Support for different genomes (hg38, mm9, mm10)
     - Support for different methylation array platforms (450K etc)
-    - Support for different normalization methods (processnoob etc)
+    - Support for different normalization methods (preprocessNoob etc)
     - Support for cell type composition QC analysis (estimateCellCounts)
     - Support for CNV calling using (conumee)
     - Docker/Singularity containerization for cross-platform execution with required dependencies
