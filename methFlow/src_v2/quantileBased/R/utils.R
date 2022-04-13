@@ -30,7 +30,7 @@ using<-function(..., character.only = FALSE) {
     req<-unlist( lapply(libs,function(p) suppressPackageStartupMessages(require(p,character.only=TRUE)) ) )
     need<-libs[req==FALSE]
     if(length(need)>0){ 
-        ls (need)
+        installMissingPkg(need)
         lapply(need,require,character.only=TRUE)
     }
 }
