@@ -244,10 +244,6 @@ Six (6) .idat files are made available as test data for the MethMiner pipeline. 
 
 ### **Citations**
 
-    - DMR calling: Garg P, Jadhav B, Rodriguez OL, Patel N, Martin-Trujillo A, Jain M, Metsu S, Olsen H, Paten B, Ritz B, Kooy RF, Gecz J, Sharp AJ. A Survey of Rare Epigenetic Variation in 23,116 Human Genomes Identifies Disease-Relevant Epivariations and CGG Expansions. Am J Hum Genet. 2020;107(4):654-69. Epub 2020/09/17. doi: 10.1016/j.ajhg.2020.08.019. PubMed PMID: 32937144; PMCID: PMC7536611.![image](https://user-images.githubusercontent.com/65321420/163659344-3fd6e421-9892-456b-a46d-a71d3908f4af.png)
+> **_DMR calling_** Garg P, Jadhav B, Rodriguez OL, Patel N, Martin-Trujillo A, Jain M, Metsu S, Olsen H, Paten B, Ritz B, Kooy RF, Gecz J, Sharp AJ. A Survey of Rare Epigenetic Variation in 23,116 Human Genomes Identifies Disease-Relevant Epivariations and CGG Expansions. Am J Hum Genet. 2020;107(4):654-69. Epub 2020/09/17. doi: 10.1016/j.ajhg.2020.08.019. PubMed PMID: 32937144; PMCID: PMC7536611.
 
-    - DMR annotations: Zhou W, Laird PW, Shen H. Comprehensive characterization, annotation and innovative use of Infinium DNA methylation BeadChip probes. Nucleic Acids Res. 2017;45(4):e22. Epub 2016/12/08. doi: 10.1093/nar/gkw967. PubMed PMID: 27924034; PMCID: PMC5389466.
-
-
-
-
+> **_DMR calling_** Zhou W, Laird PW, Shen H. Comprehensive characterization, annotation and innovative use of Infinium DNA methylation BeadChip probes. Nucleic Acids Res. 2017;45(4):e22. Epub 2016/12/08. doi: 10.1093/nar/gkw967. PubMed PMID: 27924034; PMCID: PMC5389466.
