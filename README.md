@@ -191,6 +191,10 @@ Pipeline consists of the following three workflows.
             --email <email address>
         ```
 
+### **How to visualize and explore the results of the pipeline?**
+
+Place the `app.py` file from MethVis subfolder inside the `<runName>_preprocessIllumina` directory, activate the environment with all dash-related packages (see installation instructions above), and run command `python app.py`.
+
 ### **Future updates to the pipeline**
     - Support for different genomes (hg38, mm9, mm10)
     - Support for different methylation array platforms (450K etc)
@@ -200,10 +204,6 @@ Pipeline consists of the following three workflows.
     - Docker/Singularity containerization for cross-platform execution with required dependencies
 
 ## **2. MethVis - Jupyter Dash server installation**
-
-### **How to visualize and explore the results of the pipeline?**
-
-Place the `app.py` file from MethVis subfolder inside the `<runName>_preprocessIllumina` directory, activate the environment with all dash-related packages (see installation instructions above), and run command `python app.py`.
 
 We recommend generating the [Anaconda](https://www.anaconda.com/products/distribution) virtual environment, to install the required packages. Assuming this is the approach taken, first create and activate the enviroment:
 
