@@ -171,24 +171,29 @@ process FIND_DMRS {
 }
 
 
-process ANNOTATE_DMR {
-    publishDir "${params.outdir}/${params.runName}/${params.runName}_preprocessIllumina/normalized_data/dmr_${params.windowSize}_${params.qCutMin}_${params.qCutMax}", mode: 'copy'
+process ANNOT_DMRS {
+    publishDir "${params.outdir}/${params.runName}/${params.runName}_preprocessIllumina/normalized_data/dmr_${params.windowSize}_${params.qCutMin}_${params.qCutMax}/Annotation", mode: 'copy'
     //echo true
     cache 'lenient'
-    //executor 'lsf'
-    //memory '8 GB'
-    //queue 'compbio'
-    
-    input:
-        path epiVarFile
-    output:
-        path "*_findEpivariation.txt.sig", emit: epiSigFile
-        path "*_dmr.txt" optional true
 
+    input:
+        path sigDMR
+    output:
+        path "annotations/*.xlsx", emit: dmrAnnoFile
+    
     """
     module load R/4.1.0
-    script="${projectDir}/src/quantileBased/3_getDMRlist.R"
+    script="${projectDir}/src_v2/quantileBased/5_annotateDMRs.R"
+    outDir="."
+    Rscript --vanilla \${script} -o \${outDir}  -p ${params.platform} -d ${sigDMR} -g ${params.genome}    
+    """
 
+}
+
+
+process COPY_APP {
+    """
+    cp ${projectDir}/../MethVis/app.py ${params.outdir}/${params.runName}/${params.runName}_preprocessIllumina/
     """
 }
 
@@ -209,14 +214,22 @@ workflow DMR_WF {
     FIND_DMRS(FIND_EPIVARIATION.out.epiFile)
 }
 
+workflow DMR_ANNO {
+    sigDMR = Channel.fromPath("${params.outdir}/${params.runName}/${params.runName}_preprocessIllumina/normalized_data/dmr_${params.windowSize}_${params.qCutMin}_${params.qCutMax}/*.sig")
+    ANNOT_DMRS(sigDMR)
+}
+
 workflow QUANTILE_WF {
     wch = Channel.of(params.workdir)
     run = Channel.of(params.runName)
-    QC_NORMALIZATION(wch, run)
+    plfrm= Channel.of(params.platform)
+    QC_NORMALIZATION(wch, run,plfrm)
     SORT_BETA(QC_NORMALIZATION.out.outpath)
     BED_BIGWIG(SORT_BETA.out.flatten())
     FIND_EPIVARIATION(SORT_BETA.out.flatten())
     FIND_DMRS(FIND_EPIVARIATION.out.epiFile)
+    ANNOT_DMRS(FIND_DMRS.out.epiSigFile)
+    COPY_APP()
 }
 
 workflow.onComplete {
@@ -238,6 +251,14 @@ workflow.onComplete {
         Success       : ${workflow.success}
         launchDir     : ${workflow.launchDir}
         exit status   : ${workflow.exitStatus}
+        ---------------------------
+
+        Launching visualization:
+        ---------------------------
+        To run the Dash visualization, load your conda environment and run the following command:
+        
+        cd  ${params.outdir}/${params.runName}/${params.runName}_preprocessIllumina/
+        python app.py
         """
         .stripIndent()
     println msg

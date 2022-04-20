@@ -45,7 +45,7 @@ checkPackages <- function(){
   requiredPackages <- c("cli","optparse","yaml","dplyr","tidyverse","glue","fs",
                         "minfi","IlluminaHumanMethylationEPICmanifest","processx",
                         "IlluminaHumanMethylationEPICanno.ilm10b4.hg19","openxlsx",
-                        "GenomicRanges",
+                        "GenomicRanges","fpeek",
                         "data.table","readxl","ggplot2","logger")
 
   # just in case a package was written twice                    
@@ -117,8 +117,7 @@ parseParameters <- function(){
   for(n in names(opt)){
     if(is.null(opt[[n]])){      
       parser$print_help()
-      cli::cli_alert_danger("Couldn't parse correctly the provided arguments.")
-      stop()
+      cli::cli_abort("Couldn't parse correctly the provided arguments.")
     }
   }
 
@@ -550,7 +549,7 @@ parseAnnoParameters <- function(){
 
   if(!file.exists(opt$dmr)){
       logger::log_error("Please make sure the path to the DMR file is correct.")
-      cli::cli_alert_danger("Couldn't read: {.val {opt$dmr}}")
+      cli::cli_abort("Couldn't read: {.val {opt$dmr}}")
   }
 
   config = list()
@@ -565,12 +564,41 @@ parseAnnoParameters <- function(){
 }
 
 
+getData <- function(config){
 
+  annotDir = glue::glue("{config$scriptsDir}/../../data/annotations/{config$genome}")
+  
+  ## This will not create the folder if it already exists
+  fs::dir_create(annotDir)
+  fs::dir_create(glue::glue("{annotDir}/CTCF"))
+  fs::dir_create(glue::glue("{annotDir}/imprinting"))
+  fs::dir_create(glue::glue("{annotDir}/450k"))
+
+  ## For the moment we just have hg19 annotations
+  if(config$genome == "hg19"){
+
+    ctcfFile = glue::glue("{annotDir}/CTCF/{config$platform}.{config$genome}.CTCF.overlap.tsv.gz")
+    if(!file.exists(ctcfFile)){
+      download.file("https://zhouserver.research.chop.edu/InfiniumAnnotation/20180909/EPIC/EPIC.hg19.CTCF.tsv.gz",ctcfFile)
+    }
+
+    imprintingFile = glue::glue("{annotDir}/imprinting/{config$platform}.{config$genome}.imprinting.tsv.gz")
+    if(!file.exists(imprintingFile)){
+      download.file("https://zhouserver.research.chop.edu/InfiniumAnnotation/20180909/EPIC/EPIC.hg19.imprinting.tsv.gz",imprintingFile)
+    }
+
+    k450File = glue::glue("{annotDir}/450k/450k_population_DMRs_autosomes.xlsx")
+    if(!file.exists(k450File)){
+      download.file("https://www.dropbox.com/scl/fi/a25hi9fflwuq0torhollh/450k_population_DMRs_autosomes.xlsx?dl=1&rlkey=pfhxpygvduh0qv4bf0ay2tj5m",k450File)
+    }
+  }
+
+}
 
 
 runHomerAnnotation <- function(config){
 
-    tmp_dir = tempdir(check = FALSE)    
+    tmp_dir = fs::path_temp()
     fin = config$DMR
     logger::log_info("Creating HOMER tmp directory at {tmp_dir}")
     fs::dir_create(tmp_dir)
@@ -579,26 +607,26 @@ runHomerAnnotation <- function(config){
 
     logger::log_info("Converting {config$DMR} to HOMER bed format")
     sig.df = readr::read_tsv(config$DMR, show_col_types = FALSE)
-    sig.df$DMR_size = sig.df$End_DMR - sig.df$Start_DMR
+    sig.df$DMR_size = sig.df$CpG_end - sig.df$CpG_beg
 
+    pos = grep("Sign_direction",colnames(sig.df))
+    sig.df[['nbIndividuals with DMR']] = strsplit(sig.df[[pos]],split=",") %>% sapply(function(x) length(x))
 
     anno_dir = glue::glue("{config$outputDir}/annotations")
     fs::dir_create(anno_dir)
 
     fin = gsub(".txt.sig",".sig.bed",config$DMR) %>% basename()
     fin = glue::glue("{tmp_dir}/{fin}")
-    readr::write_tsv(sig.df[,1:3], fin, col_names=FALSE)
+    readr::write_tsv(sig.df[,c("CpG_chrm","CpG_beg","CpG_end")], fin, col_names=FALSE)
 
-    fout = gsub(".sig.bed","sig.anno.tsv",fin)
+    fout = gsub(".sig.bed",".sig.anno.tsv",fin)
     fout_stat = gsub(".anno.tsv",".anno.stats.tsv",fout)
 
     annoFile = glue::glue("{anno_dir}/{basename(fout)}")
     statOut = glue::glue("{anno_dir}/{basename(fout_stat)}")
 
-
-
     logger::log_info("Running HOMER annotation ...")
-    cmd = glue::glue("module load homer/4.10 && annotatePeaks.pl  {fin} {config$genome}> {annoFile}")
+    cmd = glue::glue("module load homer/4.10 && annotatePeaks.pl  {fin} {config$genome} > {annoFile}")
     logger::log_info("Launching HOMER with the following command: {cmd}")
     system(cmd)
     
@@ -649,11 +677,12 @@ runHomerAnnotation <- function(config){
 
 runCTCFAnnotation <- function(config){
 
-    annoFile = glue::glue("{config$scriptsDir}/../annotations/{config$genome}/CTCF/{config$platform}.{config$genome}.CTCF.overlap.tsv")
+    annoFile = glue::glue("{config$scriptsDir}/../../data/annotations/{config$genome}/CTCF/{config$platform}.{config$genome}.CTCF.overlap.tsv.gz")
 
     if(!file.exists(annoFile)){
-        logger::log_error("Couldn't find CTCF annotation file.")
-        cli::cli_abort("{annoFile}")
+        logger::log_error("Couldn't find CTCF annotation file: {annoFile}")
+        cli::cli_alert_info("Skipping CTCF annotation step")
+        return(config)
     }
 
     # double check the homer annotation results are still there
@@ -665,15 +694,16 @@ runCTCFAnnotation <- function(config){
     logger::log_info("CTCF annotation ...")    
     sig.dmr.df = readr::read_tsv(config$anno_tmp, show_col_types = FALSE)
     old_cnames = colnames(sig.dmr.df)
-    colnames(sig.dmr.df)[1:3] = c("seqnames","start","end")
+    colnames(sig.dmr.df)[2:4] = c("seqnames","start","end")
     sig.dmr.gr = GRanges(sig.dmr.df)
 
-    colnames(sig.dmr.df)[1:3] = old_cnames[1:3]
+    colnames(sig.dmr.df)[2:4] = old_cnames[2:4]
 
     # here readr::read_tsv doesn't work somehow
-    ctcf_anno = read.table(annoFile, sep="\t",row.names=1)
+    ctcf_anno =  readr::read_tsv(annoFile,col_names=TRUE,show_col_types = FALSE)
     colnames(ctcf_anno)[1:3] = c("seqnames","start","end")
-
+    pos = apply(ctcf_anno,1,function(x) all(!is.na(x)))
+    ctcf_anno = ctcf_anno[pos,]
     ctcf_anno.gr = GRanges(ctcf_anno)
 
     ovp = findOverlaps(sig.dmr.gr, ctcf_anno.gr)
@@ -693,27 +723,31 @@ runCTCFAnnotation <- function(config){
 
 runImprintingAnnotation <- function(config){
 
-  annoFile = glue::glue("{config$scriptsDir}/../annotations/{config$genome}/imprinting/{config$platform}.{config$genome}.imprinting.tsv")
+  annoFile = glue::glue("{config$scriptsDir}/../../data/annotations/{config$genome}/imprinting/{config$platform}.{config$genome}.imprinting.tsv.gz")
 
   if(!file.exists(annoFile)){
-      logger::log_error("Couldn't find imprinting annotation file.")
-      cli::cli_abort("{annoFile}")
+      logger::log_error("Couldn't find imprinting annotation file {annoFile}")
+      cli::cli_abort("")
   }
 
   # double check the homer annotation results are still there
   if(!file.exists(config$anno_tmp)){
-      logger::log_error("Couldn't find HOMER annotation file.")
-      cli::cli_abort("{config$anno_tmp}")
+      logger::log_error("Couldn't find Imprinting annotation file.")
+      cli::cli_alert_info("Skipping Imprinting annotation step")
+      return(config)
   }
 
   logger::log_info("Imprinting annotation ...")    
   sig.dmr.df = readr::read_tsv(config$anno_tmp, show_col_types = FALSE)
-  colnames(sig.dmr.df)[1:3] = c("seqnames","start","end")
+  colnames(sig.dmr.df)[2:4] = c("seqnames","start","end")
   sig.dmr.gr = GRanges(sig.dmr.df)
 
   # here readr::read_tsv doesn't work somehow
-  imprinting_anno = readr::read_tsv(annoFile)
+  imprinting_anno = readr::read_tsv(annoFile, show_col_types = FALSE)
   colnames(imprinting_anno)[1:3] = c("seqnames","start","end")
+
+  pos = apply(imprinting_anno,1,function(x) all(!is.na(x)))
+  imprinting_anno = imprinting_anno[pos,]
 
   imprinting_anno.gr = GRanges(imprinting_anno)
 
@@ -761,11 +795,12 @@ GRangesToString <- function (grange, sep = c(":", "-"))
 
 run450KAnno <- function(cofig){
 
-  annoFile = glue::glue("{config$scriptsDir}/../annotations/{config$genome}/450k/450k_population_DMRs_autosomes.xlsx")
+  annoFile = glue::glue("{config$scriptsDir}/../../data/annotations/{config$genome}/450k/450k_population_DMRs_autosomes.xlsx")
 
   if(!file.exists(annoFile)){
-      logger::log_error("Couldn't find imprinting annotation file.")
-      cli::cli_abort("{annoFile}")
+      logger::log_error("Couldn't find population frequency file {annoFile}")
+      cli::cli_alert_info("Skipping population frequency annotation.")
+      return(config)
   }
 
   # double check the homer annotation results are still there
@@ -776,13 +811,26 @@ run450KAnno <- function(cofig){
 
   logger::log_info("Population frequency annotation ...")    
   sig.dmr.df = readr::read_tsv(config$anno_tmp, show_col_types = FALSE)
-  org_names = colnames(sig.dmr.df)[1:3]
-  colnames(sig.dmr.df)[1:3] = c("seqnames","start","end")  
+  org_names = colnames(sig.dmr.df)[2:4]
+  colnames(sig.dmr.df)[2:4] = c("seqnames","start","end")  
   sig.dmr.gr = GRanges(sig.dmr.df)
 
-  colnames(sig.dmr.df)[1:3] = org_names
+  colnames(sig.dmr.df)[2:4] = org_names
   sig.dmr.df[["Frequency of DMR per 10,000 (95% CI)"]] = '.'
   sig.dmr.df[["Corresponding 450k population DMR"]] = '.'
+
+  pos = grep("Sign_direction",colnames(mcols(sig.dmr.gr)))
+  colnames(mcols(sig.dmr.gr))[pos] = "direction"
+  ndir = strsplit(mcols(sig.dmr.gr)[[pos]],split=",") %>% lapply(unique)
+  dir = sapply(ndir,function(x) x[1])
+  nunique = sapply(ndir,length)
+
+  sig.dmr.gr$direction = dir
+  sig.dmr.gr$direction[nunique>1] = "Both"
+  
+  sig.dmr.gr$rowID = 1:length(sig.dmr.gr)
+
+  sig.dmr.gr_lst = split(sig.dmr.gr, sig.dmr.gr$direction)
 
   # here readr::read_tsv doesn't work somehow
   logger::log_info("Loading 450k population data ...")
@@ -790,14 +838,6 @@ run450KAnno <- function(cofig){
   colnames(population_anno)[1:3] = c("seqnames","start","end")
 
   population_anno.gr = GRanges(population_anno)
-
-  sig.dmr.gr$direction = gsub("MAX","HYPER",sig.dmr.gr$direction)
-  sig.dmr.gr$direction = gsub("MIN","HYPO",sig.dmr.gr$direction)
-
-  sig.dmr.gr$rowID = 1:length(sig.dmr.gr)
-
-  sig.dmr.gr_lst = split(sig.dmr.gr, sig.dmr.gr$direction)
-
 
   ## simpligy the dirrection of the 450k samples
   dir = sapply(mcols(population_anno.gr)[["Direction of methylation change"]], 
@@ -866,7 +906,7 @@ saveAnnoAsXlsx <- function(config){
 
   # double check the homer annotation results are still there
     if(!file.exists(config$anno_tmp)){
-        logger::log_error("Couldn't find HOMER annotation file.")
+        logger::log_error("Couldn't find annotation file.")
         cli::cli_abort("{config$anno_tmp}")
     }
 

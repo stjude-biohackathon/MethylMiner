@@ -1,7 +1,7 @@
 #!/bin/env Rscript
 #########################################################################
 # St. Jude BioHackathon 2022
-# Team 2cd 
+# Team 2
 #########################################################################
 
 ###############################################################################
@@ -11,7 +11,6 @@ print(.libPaths())
 r = getOption("repos")
 r["CRAN"] = "https://cloud.r-project.org/" #Use the cloud repo.
 options(repos = r)
-install.packages("weatherData")
 
 ## Check if funr is installed (it is essential to get the source file path).
 if(!'argparse' %in% .packages(all.available = TRUE)){
@@ -42,7 +41,7 @@ checkPackages()
 cli::cli_h1("Parse parameters and folder prep")
 config  = parseParameters()
 config$scriptsDir = rootDir
-readr::write_rds(config, "config.rds")
+
 ###############################################################################
 # Prepare folders
 res = prepareFolders(config)

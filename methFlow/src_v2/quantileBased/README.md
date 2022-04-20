@@ -80,5 +80,5 @@ genome="hg19"
 platform="EPIC"
 DMR_sig="~/tmp/biohackathon_challenge/output/10_test_metharray_preprocessIllumina/normalized_data/autosomes.beta_dmr.txt.sorted.0.75.0.25.findEpivariation.txt.sig"
 
-Rscript 5_annotateDMRs.R -o ${outDir}  -p ${platform} -d ${DMR_sig} -g ${genome} -p ${platform}
+Rscript 5_annotateDMRs.R -o ${outDir}  -p ${platform} -d ${DMR_sig} -g ${genome}
 ```
