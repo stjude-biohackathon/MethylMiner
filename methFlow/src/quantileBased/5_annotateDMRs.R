@@ -47,10 +47,15 @@ if(peek_count_lines(config$DMR) <= 1){
   anno_dir = glue::glue("{config$outputDir}/annotations")
   fs::dir_create(anno_dir)
   
+  ## write empty csv and empty xlsx
   fin = gsub(".txt.sig",".sig.anno.xlsx",config$DMR) %>% basename()
   annoFile = glue::glue("{anno_dir}/{fin}")
-
   openxlsx::write.xlsx(tmp_anno, annoFile)
+
+  fin = gsub(".txt.sig",".sig.anno.tsv",config$DMR) %>% basename()
+  annoFile = glue::glue("{anno_dir}/{fin}")
+  readr::write_tsv(tmp_anno, annoFile)
+
 }else{
   
   ###############################################################################

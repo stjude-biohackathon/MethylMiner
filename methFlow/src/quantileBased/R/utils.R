@@ -607,19 +607,61 @@ runHomerAnnotation <- function(config){
 
     logger::log_info("Converting {config$DMR} to HOMER bed format")
     sig.df = readr::read_tsv(config$DMR, show_col_types = FALSE)
-    sig.df$DMR_size = sig.df$CpG_end - sig.df$CpG_beg
+    sig.df$DMR_size = sig.df$End_DMR  - sig.df$Start_DMR
 
+    ## Rename the Sign_individual colummn
+    pos2 = grep("Sign_individual",colnames(sig.df))
+    if(length(pos2)>0){
+      colnames(sig.df)[pos2] = "EpiInd"
+    }
+    
+    epiInd = strsplit(sig.df[["EpiInd"]],split=",")  
+
+    ## Rename the Sign_direction colummn and split the DMR with multiple hits.
     pos = grep("Sign_direction",colnames(sig.df))
-    sig.df[['nbIndividuals with DMR']] = strsplit(sig.df[[pos]],split=",") %>% sapply(function(x) length(x))
+    if(length(pos)>0){
+      colnames(sig.df)[pos] = "direction"
+    }
+    
+    ndir = strsplit(sig.df[["direction"]],split=",")  
+    nInd = sapply(ndir,length)
+
+    singleIndividual = which(nInd == 1)
+    multiIndividual = which(nInd > 1)
+
+    sig.dmr.gr_unique = sig.df[singleIndividual,]
+
+    sig.dmr.gr_multi = data.frame()
+
+    for(i in multiIndividual){
+      for(ind in 1:length(epiInd[[i]])){
+        indDmr = sig.df[i,]
+        indDmr$direction = ndir[[i]][ind]
+        indDmr$EpiInd = epiInd[[i]][ind]
+
+        sig.dmr.gr_multi = rbind(sig.dmr.gr_multi, indDmr)
+      }
+    }
+
+    ## Combine and re-order DMRs
+    sig.df = rbind(sig.dmr.gr_unique, sig.dmr.gr_multi) %>%
+     mutate(chromNum= as.numeric(gsub("chr","",Chr_DMR,ignore.case = TRUE)) ) %>%
+     arrange(chromNum,Start_DMR,End_DMR) %>%
+     select(!chromNum)
+
+    # Split the DMR that have more than one individual into one DMR per individual
+
+
+    #sig.df[['nbIndividuals with DMR']] = strsplit(sig.df[[pos]],split=",") %>% sapply(function(x) length(x))
 
     anno_dir = glue::glue("{config$outputDir}/annotations")
     fs::dir_create(anno_dir)
 
-    fin = gsub(".txt.sig",".sig.bed",config$DMR) %>% basename()
+    fin = gsub(".txt.sig_dmr.txt",".sig_dmr.bed",config$DMR) %>% basename()
     fin = glue::glue("{tmp_dir}/{fin}")
-    readr::write_tsv(sig.df[,c("CpG_chrm","CpG_beg","CpG_end")], fin, col_names=FALSE)
+    readr::write_tsv(sig.df[,c("Chr_DMR","Start_DMR","End_DMR")], fin, col_names=FALSE)
 
-    fout = gsub(".sig.bed",".sig.anno.tsv",fin)
+    fout = gsub("sig_dmr.bed","sig_dmr.anno.tsv",fin)
     fout_stat = gsub(".anno.tsv",".anno.stats.tsv",fout)
 
     annoFile = glue::glue("{anno_dir}/{basename(fout)}")
@@ -694,10 +736,10 @@ runCTCFAnnotation <- function(config){
     logger::log_info("CTCF annotation ...")    
     sig.dmr.df = readr::read_tsv(config$anno_tmp, show_col_types = FALSE)
     old_cnames = colnames(sig.dmr.df)
-    colnames(sig.dmr.df)[2:4] = c("seqnames","start","end")
+    colnames(sig.dmr.df)[1:3] = c("seqnames","start","end")
     sig.dmr.gr = GRanges(sig.dmr.df)
 
-    colnames(sig.dmr.df)[2:4] = old_cnames[2:4]
+    colnames(sig.dmr.df)[1:3] = old_cnames[1:3]
 
     # here readr::read_tsv doesn't work somehow
     ctcf_anno =  readr::read_tsv(annoFile,col_names=TRUE,show_col_types = FALSE)
@@ -739,7 +781,7 @@ runImprintingAnnotation <- function(config){
 
   logger::log_info("Imprinting annotation ...")    
   sig.dmr.df = readr::read_tsv(config$anno_tmp, show_col_types = FALSE)
-  colnames(sig.dmr.df)[2:4] = c("seqnames","start","end")
+  colnames(sig.dmr.df)[1:3] = c("seqnames","start","end")
   sig.dmr.gr = GRanges(sig.dmr.df)
 
   # here readr::read_tsv doesn't work somehow
@@ -811,22 +853,13 @@ run450KAnno <- function(cofig){
 
   logger::log_info("Population frequency annotation ...")    
   sig.dmr.df = readr::read_tsv(config$anno_tmp, show_col_types = FALSE)
-  org_names = colnames(sig.dmr.df)[2:4]
-  colnames(sig.dmr.df)[2:4] = c("seqnames","start","end")  
+  org_names = colnames(sig.dmr.df)[1:3]
+  colnames(sig.dmr.df)[1:3] = c("seqnames","start","end")  
   sig.dmr.gr = GRanges(sig.dmr.df)
 
-  colnames(sig.dmr.df)[2:4] = org_names
+  colnames(sig.dmr.df)[1:3] = org_names
   sig.dmr.df[["Frequency of DMR per 10,000 (95% CI)"]] = '.'
   sig.dmr.df[["Corresponding 450k population DMR"]] = '.'
-
-  pos = grep("Sign_direction",colnames(mcols(sig.dmr.gr)))
-  colnames(mcols(sig.dmr.gr))[pos] = "direction"
-  ndir = strsplit(mcols(sig.dmr.gr)[[pos]],split=",") %>% lapply(unique)
-  dir = sapply(ndir,function(x) x[1])
-  nunique = sapply(ndir,length)
-
-  sig.dmr.gr$direction = dir
-  sig.dmr.gr$direction[nunique>1] = "Both"
   
   sig.dmr.gr$rowID = 1:length(sig.dmr.gr)
 
