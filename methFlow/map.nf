@@ -49,7 +49,7 @@ process QC_NORMALIZATION {
         wget -P "${projectDir}/data/" "https://zhouserver.research.chop.edu/InfiniumAnnotation/20180909/EPIC/EPIC.hg19.manifest.tsv.gz"
         gunzip "${projectDir}/data/EPIC.hg19.manifest.tsv.gz"
     fi
-    script="${projectDir}/src_v2/quantileBased/1_metharray_QC_norm.R"
+    script="${projectDir}/src/quantileBased/1_metharray_QC_norm.R"
     cwd=\$(realpath ./)
     Rscript --vanilla \${script} -w ${wdir} -n ${rName} -m \${manifest} -p ${plfrm}
     mkdir "${rName}_preprocessIllumina/normalized_data/qcReports/"
@@ -151,7 +151,7 @@ process FIND_DMRS {
         path epiVarFile
     output:
         path "*_findEpivariation.txt.sig", emit: epiSigFile
-        path "*_dmr.txt" optional true
+        path "*sig_dmr.txt"              , emit: epiDMRFile, optional: true
     
     """
     module load R/4.1.0
@@ -172,18 +172,19 @@ process FIND_DMRS {
 
 
 process ANNOT_DMRS {
-    publishDir "${params.outdir}/${params.runName}/${params.runName}_preprocessIllumina/normalized_data/dmr_${params.windowSize}_${params.qCutMin}_${params.qCutMax}/Annotation", mode: 'copy'
+    publishDir "${params.outdir}/${params.runName}/${params.runName}_preprocessIllumina/normalized_data/dmr_${params.windowSize}_${params.qCutMin}_${params.qCutMax}", mode: 'copy'
     //echo true
     cache 'lenient'
 
     input:
         path sigDMR
     output:
-        path "annotations/*.xlsx", emit: dmrAnnoFile
+        path "annotations/*.tsv", emit: dmrAnnoFileTSV
+        path "annotations/*.xlsx", emit: dmrAnnoFileXLSX, optional: true
     
     """
     module load R/4.1.0
-    script="${projectDir}/src_v2/quantileBased/5_annotateDMRs.R"
+    script="${projectDir}/src/quantileBased/5_annotateDMRs.R"
     outDir="."
     Rscript --vanilla \${script} -o \${outDir}  -p ${params.platform} -d ${sigDMR} -g ${params.genome}    
     """
@@ -192,6 +193,10 @@ process ANNOT_DMRS {
 
 
 process COPY_APP {
+
+    input:
+        path annoFile
+
     """
     cp ${projectDir}/../MethVis/app.py ${params.outdir}/${params.runName}/${params.runName}_preprocessIllumina/
     """
@@ -215,7 +220,7 @@ workflow DMR_WF {
 }
 
 workflow DMR_ANNO {
-    sigDMR = Channel.fromPath("${params.outdir}/${params.runName}/${params.runName}_preprocessIllumina/normalized_data/dmr_${params.windowSize}_${params.qCutMin}_${params.qCutMax}/*.sig")
+    sigDMR = Channel.fromPath("${params.outdir}/${params.runName}/${params.runName}_preprocessIllumina/normalized_data/dmr_${params.windowSize}_${params.qCutMin}_${params.qCutMax}/*.sig_dmr.txt")
     ANNOT_DMRS(sigDMR)
 }
 
@@ -228,8 +233,8 @@ workflow QUANTILE_WF {
     BED_BIGWIG(SORT_BETA.out.flatten())
     FIND_EPIVARIATION(SORT_BETA.out.flatten())
     FIND_DMRS(FIND_EPIVARIATION.out.epiFile)
-    ANNOT_DMRS(FIND_DMRS.out.epiSigFile)
-    COPY_APP()
+    ANNOT_DMRS(FIND_DMRS.out.epiDMRFile)
+    COPY_APP(ANNOT_DMRS.out.dmrAnnoFileTSV)
 }
 
 workflow.onComplete {
@@ -256,7 +261,7 @@ workflow.onComplete {
         Launching visualization:
         ---------------------------
         To run the Dash visualization, load your conda environment and run the following command:
-        
+
         cd  ${params.outdir}/${params.runName}/${params.runName}_preprocessIllumina/
         python app.py
         """
