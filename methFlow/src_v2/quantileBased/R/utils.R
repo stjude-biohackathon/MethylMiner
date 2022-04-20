@@ -164,17 +164,17 @@ prepareFolders <- function(config){
 
     logger::log_info("Preparing folders ...")
 
-    dataDir = glue::glue("{config$workDir}/data")
+    dataDir = glue::glue("{config$workDir}")
     if(!dir.exists(dataDir)){
         logger::log_info("Couldn't find the data directory at {dataDir}")
         stop()
     }
 
 
-    outputDir = glue::glue("{config$workDir}/output")
+    outputDir = normalizePath(".") #glue::glue("{config$workDir}/output")
 
-    fs::dir_create(outputDir) # This will work even if the directory exists
-    logger::log_info("Created {outputDir}")    
+    #fs::dir_create(outputDir) # This will work even if the directory exists
+    #logger::log_info("Created {outputDir}")    
 
     # Read methyl array sheet
     logger::log_info("Reading sample sheet containing metadata ...")
@@ -182,7 +182,7 @@ prepareFolders <- function(config){
 
     # make specific folder for this QC run
     name = config$runName
-    QC_run_folder = glue::glue("{outputDir}/{nrow(all_targets)}_{name}__preprocessIllumina/")
+    QC_run_folder = glue::glue("{outputDir}/{name}_preprocessIllumina/")
     fs::dir_create(QC_run_folder)
     logger::log_info("Created {QC_run_folder}")
 
@@ -440,7 +440,7 @@ saveBeta <- function(MSet, phenoData, manifest, outputDir, filename) {
     # add probeID info as first column
     beta = as.data.frame(beta)
     beta = rownames_to_column(beta, var='probeID')
-    beta <- as.data.frame(cbind(rownames(beta), beta))     
+    #beta <- as.data.frame(cbind(rownames(beta), beta))     
     
     filtered.probes <- beta$probeID # filter the EPIC manifest data to only contain the filtered probes
     

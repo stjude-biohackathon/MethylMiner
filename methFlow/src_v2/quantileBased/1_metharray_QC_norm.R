@@ -6,12 +6,17 @@
 
 ###############################################################################
 # Load dependencies and helper scripts
-
+.libPaths(c(.libPaths(),"./Rlib"))
+print(.libPaths())
+r = getOption("repos")
+r["CRAN"] = "https://cloud.r-project.org/" #Use the cloud repo.
+options(repos = r)
+install.packages("weatherData")
 
 ## Check if funr is installed (it is essential to get the source file path).
-if(!'optparse' %in% .packages(all.available = TRUE)){
-  message("The essential package 'optparse' is missing, installing it ...")
-  install.packages('optparse')
+if(!'argparse' %in% .packages(all.available = TRUE)){
+  message("The essential package 'argparse' is missing, installing it ...")
+  install.packages('argparse')
 }
 
 
@@ -37,7 +42,7 @@ checkPackages()
 cli::cli_h1("Parse parameters and folder prep")
 config  = parseParameters()
 config$scriptsDir = rootDir
-
+readr::write_rds(config, "config.rds")
 ###############################################################################
 # Prepare folders
 res = prepareFolders(config)

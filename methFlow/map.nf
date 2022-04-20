@@ -38,6 +38,7 @@ process QC_NORMALIZATION {
     input:
         val wdir
         val rName
+        val plfrm
     output:
         path "${rName}_preprocessIllumina/", emit: outpath
     
@@ -48,14 +49,15 @@ process QC_NORMALIZATION {
         wget -P "${projectDir}/data/" "https://zhouserver.research.chop.edu/InfiniumAnnotation/20180909/EPIC/EPIC.hg19.manifest.tsv.gz"
         gunzip "${projectDir}/data/EPIC.hg19.manifest.tsv.gz"
     fi
-    script="${projectDir}/src/quantileBased/1_metharray_QC_norm.R"
+    script="${projectDir}/src_v2/quantileBased/1_metharray_QC_norm.R"
     cwd=\$(realpath ./)
-    Rscript \${script} -w ${wdir} -n ${rName} -m \${manifest}
+    Rscript --vanilla \${script} -w ${wdir} -n ${rName} -m \${manifest} -p ${plfrm}
     mkdir "${rName}_preprocessIllumina/normalized_data/qcReports/"
     csvFile=\$(realpath ${wdir}/*.csv)
     mv ${rName}_preprocessIllumina/normalized_data/*.pdf ${rName}_preprocessIllumina/normalized_data/qcReports/
     cp \$csvFile ${rName}_preprocessIllumina/raw_data/
-    rm ${rName}_preprocessIllumina/normalized_data/GSet.all.RDS
+    rdsFile=\$(find ${rName}_preprocessIllumina -name RGSet.all.RDS)
+    rm \$(rdsFile) || true
     """
 }
 
@@ -169,10 +171,33 @@ process FIND_DMRS {
 }
 
 
+process ANNOTATE_DMR {
+    publishDir "${params.outdir}/${params.runName}/${params.runName}_preprocessIllumina/normalized_data/dmr_${params.windowSize}_${params.qCutMin}_${params.qCutMax}", mode: 'copy'
+    //echo true
+    cache 'lenient'
+    //executor 'lsf'
+    //memory '8 GB'
+    //queue 'compbio'
+    
+    input:
+        path epiVarFile
+    output:
+        path "*_findEpivariation.txt.sig", emit: epiSigFile
+        path "*_dmr.txt" optional true
+
+    """
+    module load R/4.1.0
+    script="${projectDir}/src/quantileBased/3_getDMRlist.R"
+
+    """
+}
+
+
 workflow QC_WF {
     wch = Channel.of(params.workdir)
     run = Channel.of(params.runName)
-    QC_NORMALIZATION(wch, run)
+    plfrm= Channel.of(params.platform)
+    QC_NORMALIZATION(wch, run,plfrm)
     SORT_BETA(QC_NORMALIZATION.out.outpath)
     //SORT_BETA.out.flatMap().view()
     BED_BIGWIG(SORT_BETA.out.flatten())
