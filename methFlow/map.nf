@@ -213,15 +213,16 @@ workflow QC_WF {
     BED_BIGWIG(SORT_BETA.out.flatten())
 }
 
+workflow DMR_ANNO {
+    sigDMR = Channel.fromPath("${params.outdir}/${params.runName}/${params.runName}_preprocessIllumina/normalized_data/dmr_${params.windowSize}_${params.qCutMin}_${params.qCutMax}/*.sig_dmr.txt")
+    ANNOT_DMRS(sigDMR)
+}
+
 workflow DMR_WF {
     sortCh = Channel.fromPath("${params.outdir}/${params.runName}/${params.runName}_preprocessIllumina/normalized_data/betaValues/*.sorted")
     FIND_EPIVARIATION(sortCh)
     FIND_DMRS(FIND_EPIVARIATION.out.epiFile)
-}
-
-workflow DMR_ANNO {
-    sigDMR = Channel.fromPath("${params.outdir}/${params.runName}/${params.runName}_preprocessIllumina/normalized_data/dmr_${params.windowSize}_${params.qCutMin}_${params.qCutMax}/*.sig_dmr.txt")
-    ANNOT_DMRS(sigDMR)
+    ANNOT_DMRS(FIND_DMRS.out.epiDMRFile)
 }
 
 workflow QUANTILE_WF {
