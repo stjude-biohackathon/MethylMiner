@@ -48,8 +48,6 @@ res = prepareFolders(config)
 config$outputDir =  res$outputDir
 all_targets = res$all_targets
 
-
-
 ###############################################################################
 # Load manifest
 cli::cli_h1("Loading manifest")
