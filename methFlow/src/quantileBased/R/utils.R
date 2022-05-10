@@ -456,7 +456,20 @@ saveBeta <- function(MSet, phenoData, manifest, outputDir, filename) {
     readr::write_tsv(beta, fout)    
 }
 
-
+savemVal <- function(MSet, outputDir, filename) {
+  
+  #################################################################################################################
+  # get M values
+  GSet <- mapToGenome(MSet) # convert to genomic methyl set
+  GSet <- dropLociWithSnps(GSet) # remove loci with snps
+  mVal <- getM(GSet) # get M values
+  mVal = as.data.frame(mVal)
+  
+  # save M values as txt file    
+  fout= glue::glue("{outputDir}/normalized_data/{filename}.mVal.txt")
+  cli::cli_alert_info("{symbol$bullet} Saving M values to {.val {fout}}")
+  readr::write_tsv(mVal, fout)
+}
 
 seprateAutosomes <- function(configs,RGSet.all, target.MSet.norm.all, manifest, phenoData.all){
 
@@ -476,12 +489,19 @@ seprateAutosomes <- function(configs,RGSet.all, target.MSet.norm.all, manifest, 
     males <- row.names(phenoData.male)
     MSet.norm.clean.males.sexchr <- target.MSet.norm.all[sexchr,males] 
 
-    logger::log_info("Saving autosmes ...")
+    logger::log_info("Saving autosmes Beta ...")
     saveBeta(MSet.norm.clean.auto, phenoData.all,manifest, config$outputDir, "autosomes")
-    logger::log_info("Saving female chromosome ...")
+    logger::log_info("Saving female sex chromosome Beta ...")
     saveBeta(MSet.norm.clean.females.sexchr, phenoData.female, manifest, config$outputDir, "female.sexchr")
-    logger::log_info("Saving male chromosome ...")
+    logger::log_info("Saving male sex chromosome Beta...")
     saveBeta(MSet.norm.clean.males.sexchr, phenoData.male, manifest, config$outputDir, "male.sexchr")
+    
+    logger::log_info("Saving autosmes mVal...")
+    savemVal(MSet.norm.clean.auto, config$outputDir, "autosomes")
+    logger::log_info("Saving female sex chromosome mVal...")
+    savemVal(MSet.norm.clean.females.sexchr, config$outputDir, "female.sexchr")
+    logger::log_info("Saving male sex chromosome mVal...")
+    savemVal(MSet.norm.clean.males.sexchr, config$outputDir, "male.sexchr")
 
     logger::log_info("Autosome separation [DONE!]")
 }

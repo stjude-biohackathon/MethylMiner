@@ -55,7 +55,6 @@ all_targets = res$all_targets
 cli::cli_h1("Loading manifest")
 manifest  = loadSourceFiles(config)
 
-
 ###############################################################################
 # load data into minfi
 cli::cli_h1("Create Minfi")
@@ -70,7 +69,6 @@ preNormalizationAndQC(config,RGSet.all)
 # Quality control and normalization: sex check
 cli::cli_h1("Sex check")
 phenoData.all = sexCheck(config, RGSet.all)
-
 
 #################################################################
 # Quality control and normalization: Normalization
