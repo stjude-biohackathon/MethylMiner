@@ -61,7 +61,7 @@ RGSet.all = LoadIntoMinfi(config, all_targets)
 ###############################################################################
 # pre-Normalization QC
 cli::cli_h1("Pre-normalization QC")
-preNormalizationAndQC(config,RGSet.all)
+preNormalizationAndQC(config, RGSet.all)
 
 #################################################################
 # Quality control and normalization: sex check
