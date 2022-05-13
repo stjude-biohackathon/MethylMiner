@@ -463,7 +463,16 @@ savemVal <- function(MSet, outputDir, filename) {
   GSet <- mapToGenome(MSet) # convert to genomic methyl set
   GSet <- dropLociWithSnps(GSet) # remove loci with snps
   mVal <- getM(GSet) # get M values
+  
+  # save M values as RDS
+  fout= glue::glue("{outputDir}/normalized_data/{filename}.mVal.RDS")
+  cli::cli_alert_info("{symbol$bullet} Saving M values RDS to {.val {fout}}")
+  saveRDS(mVal, fout)
+  
+  # format for export as txt file
   mVal = as.data.frame(mVal)
+  mVal <- mVal %>% rownames_to_column()
+  colnames(mVal)[1] <- "probeID"
   
   # save M values as txt file    
   fout= glue::glue("{outputDir}/normalized_data/{filename}.mVal.txt")

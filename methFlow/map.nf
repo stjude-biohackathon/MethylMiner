@@ -57,6 +57,7 @@ process QC_NORMALIZATION {
     mv ${rName}_preprocessIllumina/normalized_data/*.pdf ${rName}_preprocessIllumina/normalized_data/qcReports/
     mkdir "${rName}_preprocessIllumina/normalized_data/mValues/"
     mv ${rName}_preprocessIllumina/normalized_data/*mVal.txt ${rName}_preprocessIllumina/normalized_data/mValues/
+    mv ${rName}_preprocessIllumina/normalized_data/*mVal.RDS ${rName}_preprocessIllumina/normalized_data/mValues/
     cp \$csvFile ${rName}_preprocessIllumina/raw_data/
     rdsFile=\$(find ${rName}_preprocessIllumina -name RGSet.all.RDS)
     rm \$(rdsFile) || true
