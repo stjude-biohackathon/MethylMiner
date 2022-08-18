@@ -1,0 +1,4 @@
+Sample_Name,Sample_Well,Sample_Plate,Sample_Designation,Sample_Group,Pool_ID,Reported_Sex,Sample_Type,Sample_Number,Sentrix_ID,Sentrix_Position,Sample_ID,Date,Lab_Origin,,,,,,,,,,,,,,,,
+Fragile X(NA09145*A6),A01,mefford_sjcrh_dee_methylation_6~10,Control_Affected,Case,NA,Male,PBMC,1,205828610011,R01C01,205828610011_R01C01,1/5/22,CIMR,,,,,,,,,,,,,,,,
+Fragile X(NA07063*B1),B01,mefford_sjcrh_dee_methylation_6~10,Control_Affected,Case,NA,Female,PBMC,2,205828610011,R02C01,205828610011_R02C01,1/5/22,CIMR,,,,,,,,,,,,,,,,
+Fragile X(NA09237*C5),C01,mefford_sjcrh_dee_methylation_6~10,Control_Affected,Case,NA,Male,PBMC,3,205828610011,R03C01,205828610011_R03C01,1/5/22,CIMR,,,,,,,,,,,,,,,,
