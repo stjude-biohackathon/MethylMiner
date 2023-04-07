@@ -196,6 +196,7 @@ Pipeline consists of the following three workflows.
 Place the `app.py` file from MethVis subfolder inside the `<runName>_preprocessIllumina` directory, activate the environment with all dash-related packages (see installation instructions above), and run command `python app.py`.
 
 ### **Future updates to the pipeline**
+    - Support for case vs. control analysis
     - Support for different genomes (hg38, mm9, mm10)
     - Support for different methylation array platforms (450K, EPICv2 etc)
     - Support for different normalization methods (preprocessNoob etc)
