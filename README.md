@@ -1,4 +1,4 @@
-![MethMiner](./data/assets/MethMiner.png)
+![MethMiner](./data/assets/methylminer.png)
 
 # **MethMiner**
 A methylation array analysis pipeline tailored for discovering rare methylation events with interactive data visualization.
