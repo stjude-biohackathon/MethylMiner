@@ -1,4 +1,4 @@
-# This module was created during the St Jude Bio-Hackathon of May 2023 by the team 13.
+# This module was created during the St Jude Bio-Hackathon of May 2023 by the team 13 (led by Susanna Downing).
 # author: Christy LaFlamme (christy.laflamme@stjude.org)
 # the plot created is adapated from a script originally written by Paras Garg
 
