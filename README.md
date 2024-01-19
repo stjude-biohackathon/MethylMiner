@@ -23,12 +23,12 @@ Methylation array analysis pipeline consists of two major components:
 
 Current implementation of the pipeline is designed to be executed on St. Jude HPC Research Cluster. However, the code can be run from anywhere as long as the dependencies are installed/available:
 
-Dependencies
+### **Dependencies**
     - nextflow (v21.10.5)
     - Perl (v5.26.3)
     - R (v4.1.3)
         - BiocManager
-        - minfi"
+        - minfi
         - IlluminaHumanMethylationEPICmanifest
         - IlluminaHumanMethylationEPICanno.ilm10b4.hg19
         - doParallel
