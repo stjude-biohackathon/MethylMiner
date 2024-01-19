@@ -21,7 +21,7 @@ Methylation array analysis pipeline consists of two major components:
  
 ## **1. methFlow - NextFlow Pipeline**
 
-Current implementation of the pipeline is designed to be executed on St. Jude HPC Research Cluster. However, the code can be run from anywhere as long as the <nextflow.config> file is adjusted and the dependencies are installed/available:
+Current implementation of the pipeline is designed to be executed on St. Jude HPCF Research Cluster. However, the code can be run from anywhere as long as the <nextflow.config> file is adjusted and the dependencies are installed/available:
 
 ### **Dependencies**
     - nextflow (v21.10.5)
@@ -40,7 +40,7 @@ Current implementation of the pipeline is designed to be executed on St. Jude HP
         - pheatmap
         - rstudioapi
 
-After logging into interactive node, please load the following or latest available NextFlow module before running the pipeline
+HPCF: After logging into interactive node, please load the following or latest available NextFlow module before running the pipeline
 
 ```
 module load nextflow/21.10.5
